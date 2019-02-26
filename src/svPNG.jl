@@ -1,5 +1,9 @@
+module svPNG
 # saving RGB/RGBA image into uncompressed PNG.
 # https://github.com/miloyip/svpng
+# Re-write in Julia
+
+export svpng
 
 #=
     辅助函数
@@ -249,7 +253,7 @@ function svpng(io::IO, w::UInt32, h::UInt32, img, alpha::Bool)
     #= IHDR chunk End =# 
     
     #= 3-IDAT chunk Begin =#
-    IDAT_len = 2 + h*(5+p) + 4 # TODO: Maybe there is 2+ h*(6+p) +4
+    IDAT_len = 2 + h*(5+p) + 4 
     c = SVPNG_BEGIN(io, b"IDAT", IDAT_len, t) # IDAT chunk {
     c = SVPNG_U8AC(io, b"\x78\1", c, t)         #   Deflate block begin 
                                                 #     (2 bytes)
@@ -281,23 +285,4 @@ svpng(io::IO, w::T, h::T, img) where {T<:Integer} =
 svpng(io::IO, w::T, h::T, img, alpha::Bool) where {T<:Integer} =
     svpng(io, UInt32(w), UInt32(h), img, alpha)
 
-
-#=
-    使用 svpng()
-=#
-open("svPNG-1.png", "w") do io
-    # write(io, "\x89PNG\r\n\32\n")
-    img = Array{UInt8,1}()
-    w = 256
-    h = 256
-    alpha = false
-    
-    for y in 0:(w-1)
-        for x in 0:(h-1)
-            append!(img, UInt8(x))   # R
-            append!(img, UInt8(y))   # G
-            append!(img, UInt8(128)) # B
-        end
-    end
-    svpng(io, w, h, img, alpha)
-end;
+end # module
